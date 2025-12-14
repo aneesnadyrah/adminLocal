@@ -1,0 +1,245 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+    # Force HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+
+    ######## VIEW ROUTING ########
+
+    # Authentication
+    RewriteRule ^auth/([a-z]+)$             /views/authentication/$1.php [L]
+
+    # Account
+    RewriteRule ^account/([a-z]+)$          /views/account/$1.php [L]
+
+    # Dashboard
+    RewriteRule ^dashboard                  /views/dashboard.php [L]
+
+    # Details Widget
+    RewriteRule ^details/([a-z]+)/([a-z]+)$                          /views/details/$1.php?type=$1&department=$2 [L]
+
+    # Geospatial
+    RewriteRule ^geospatial/([A-Z]+)/extract/([A-Z0-9]{8})$             /views/geospatial/extract.php?option=$1&sid=$2 [L]
+    RewriteRule ^geospatial/letters/route/([A-Z0-9]{8})$                  /views/geospatial/letters/route.php?sid=$1 [L]
+    RewriteRule ^geospatial/PIL/upload/([A-Z0-9]{8})$                   /views/geospatial/upload.php?sid=$1 [L]
+
+    # Letters
+    RewriteRule ^letters/([a-zA-Z]+)/([a-zA-Z0-9]{16})/([0-9]+)$            /views/letters/$1.php?sid=$2&lid=$3 [L]
+    RewriteRule ^letters/([a-zA-Z]+)$                                       /views/letters/$1.php? [L]
+
+    # Tasks
+    RewriteRule ^([a-z]+)/((authority|general))/tasks/([a-z]+)$                           /views/tasks.php?group=$1&section=$2&filter=$4 [L]
+    RewriteRule ^([a-z]+)/((authority|general))/tasks/([a-z]+)/([a-z]+)$                  /views/tasks.php?group=$1&section=$2&phase=$4&filter=$5 [L]
+    RewriteRule ^([a-z]+)/((authority|general))/tasks/([a-z]+)/([A-Z0-9]{8})$             /views/tasks.php?group=$1&section=$2&filter=$4&id=$5 [L]
+
+    #FSlightBox
+    RewriteRule ^attachments/view$          /views/downloader.php [QSA,L]
+
+    # Tracker
+    # RewriteRule ^tracker/([a-z]+)$                                  /views/projects/tracker/$1.php [L]
+    RewriteRule ^tracker/overall/([a-zA-Z0-9]+)$                    /views/projects/tracker/$1.php [L]
+    RewriteRule ^tracker/attachments/list/([A-Z0-9]{8})$            /views/projects/tracker/attachments.php?id=$1 [QSA,L]
+
+    # Project Details
+    RewriteRule ^projects/details/([A-Z0-9]{8})$          /views/projects/details.php?id=$1 [L]
+
+    # Projects :: Public
+    RewriteRule ^projects/view/([a-zA-Z]+)/([a-zA-Z0-9]{8})$                        /views/public/projects/$1.php?sid=$2 [QSA,L]
+
+    # Projects
+    RewriteRule ^projects/tasks/([A-Z0-9]{8})$                                   /views/projects.php?sid=$1 [L]
+    RewriteRule ^projects/active/([a-z]+)$                                   /views/projects.php?phase=$1 [L]
+    RewriteRule ^projects/record/authority                                       /views/projects/records/entryAuthority.php [QSA,L]
+    RewriteRule ^projects/([a-z]+)/([a-z]+)/([A-Z0-9]{8})$                       /views/projects/$1/applications.php?type=$2&id=$3 [QSA,L]
+    RewriteRule ^projects/prints/([A-Z]+)/([a-zA-Z0-9]{8})$                     /views/projects/prints/$1.php?sid=$2 [QSA,L]
+    RewriteRule ^projects/([a-z]+)$   /views/projects/$1.php [L]
+
+    RewriteRule ^projects/site/tp/amend/([A-Z0-9]{8})$                       /views/projects/site/tpAmend.php?sid=$1 [QSA,L]
+    RewriteRule ^projects/site/tp/amend/review/([A-Z0-9]{8})$               /views/projects/site/tpAmendReview.php?sid=$1 [QSA,L]
+
+    # Modal Popup File
+    # RewriteRule ^components/files/([a-zA-Z0-9=]+)/([0-9])$          /components/partials/widgets/print.php?f=$1&t=$2 [L]
+
+    # Reports
+    RewriteRule ^reports/site/task/([a-zA-Z0-9=]+)$                 /views/projects/site/list.php?sid=$1 [QSA,L]
+    RewriteRule ^reports/site/summary/([a-zA-Z0-9=]+)$              /views/projects/site/summary.php?sid=$1 [QSA,L]
+    RewriteRule ^reports/site/review/([a-zA-Z0-9=]+)$               /views/projects/site/review.php?sid=$1 [QSA,L]
+    RewriteRule ^reports/site/amend/review/([a-zA-Z0-9=]+)$         /views/projects/site/amendReview.php?sid=$1 [QSA,L]
+    RewriteRule ^reports/site/view/([a-zA-Z0-9=]+)$                 /views/projects/site/view.php?sid=$1 [QSA,L]
+    RewriteRule ^reports/site/([a-zA-Z0-9=]+)$                      /views/projects/site/report.php?sid=$1 [QSA,L]
+
+    #Summary
+    RewriteRule ^wayleave/summary/([a-z]+)$           /views/projects/wayleave/summary/$1.php? [L]
+
+    #Deposit
+    RewriteRule ^wayleave/deposit/([a-z]+)$           /views/projects/wayleave/deposit/$1.php? [L]
+
+    # Permits
+    RewriteRule ^permit/checklist/([a-zA-Z0-9]{8})$             /views/projects/permit/checklist.php?sid=$1 [L]
+
+    # Surveys
+    RewriteRule ^surveys/site/([a-zA-Z0-9]+)/([a-zA-Z0-9]{8})$   /views/surveys/site/$1.php?sid=$2 [L]
+    RewriteRule ^surveys/([a-z]+)/([a-zA-Z0-9]{8})/([a-zA-Z0-9]+)$   /views/surveys/$1.php?sid=$2&proj=$3 [L]
+    RewriteRule ^surveys/priority/([a-z]+)$   /views/surveys/priority/$1.php [L]
+    RewriteRule ^surveys/tasks/([a-z]+)$   /views/surveys/tasks/$1.php [L]
+    RewriteRule ^surveys/([a-z]+)$   /views/surveys/$1.php [L]
+
+    #Letter In
+    RewriteRule ^letter/in/([a-z]+)/([A-Z0-9]+)$                /views/letterIn/$1.php?lid=$2 [L]
+    RewriteRule ^letter/in/([a-z]+)                             /views/letterIn/$1.php [L]
+
+    #Calendar
+    RewriteRule ^calendar/([a-zA-Z0-9]+)/([0-9]+)$              /views/apps/calendar/index.php?sid=$1&rt=$2 [L]
+    RewriteRule ^calendar                                       /views/apps/calendar/index.php [L]
+
+    # QR-Code Attendance
+    RewriteRule ^attendance/([a-z]+)/([a-zA-Z0-9]{8})$         /views/apps/attendance/$1.php?sid=$2 [L]
+
+    # QR-Code Plan
+    RewriteRule ^qrcode/([a-z]+)/([a-zA-Z0-9]{16})$             /views/apps/$1.php?sid=$2 [L]
+    RewriteRule ^qrcode/download/([a-z]+)/([a-zA-Z0-9]{8})$    /views/surveys/qrcode/download/$1.php?sid=$2 [QSA,L]
+    RewriteRule ^sharing/([0-9a-fA-F-]+)$                       /views/surveys/sharing.php?uuid=$1 [QSA,L]
+
+    # Error
+    RewriteRule ^error/404          /views/error/404.php [L]
+    RewriteRule ^error/505          /views/error/505.php [L]
+
+
+    ######## API ROUTING ########
+
+    #Authentications
+    RewriteRule ^api/auth/([a-z]+)$                 /api/v1/authentication/$1.php [L]
+
+    # Account [profile]
+    RewriteRule ^api/account/([a-z]+)$               /api/v1/settings/$1.php [L]
+
+    #Finance
+    RewriteRule ^api/tasks/finance/([a-zA-Z]+)$                /api/v1/tasks/finance/$1.php [L]
+
+    # Geospatial
+    RewriteRule ^api/geospatial/([a-z]+)$          /api/v1/geospatial/$1.php [QSA,L]
+
+    # Tasks
+    RewriteRule ^api/tasks/([0-9]+)/([a-z]+)$       /api/v1/tasks/$2.php?status=$1 [QSA,L]
+    RewriteRule ^api/tasks/([a-z]+)$                /api/v1/tasks/$1.php [L]
+
+    # Projects
+    RewriteRule ^api/projects/uploads                       /api/v1/projects/upload.php [L]
+    RewriteRule ^api/projects/wayleaves/([a-z]+)/([a-zA-Z0-9]{16})$          /api/v1/projects/wayleaves/$1.php?sid=$2 [QSA,L]
+    RewriteRule ^api/projects/wayleaves/([a-zA-Z]+)$        /api/v1/projects/wayleaves/$1.php [L]
+    RewriteRule ^api/projects/pins                          /api/v1/projects/pins.php [L]
+    RewriteRule ^api/projects/pins/lists                    /api/v1/projects/pins.php?id=$1 [L]
+    RewriteRule ^api/projects/wayleaves/([a-z]+)$           /api/v1/projects/wayleaves/$1.php [L]
+    RewriteRule ^api/projects/wayleaves/([a-z]+)/([a-zA-Z0-9]{16})$         /api/v1/projects/wayleaves/$1.php?sid=$2 [L]
+    RewriteRule ^api/projects/wayleaves/feedback/([a-z]+)$           /api/v1/projects/wayleaves/feedback/$1.php [L]
+    RewriteRule ^api/projects/team/([a-z]+)$      /api/v1/projects/team/$1.php [QSA,L]
+    RewriteRule ^api/projects/archieve                       /api/v1/projects/archieve.php [L]
+    RewriteRule ^api/projects/jumpstep                       /api/v1/projects/jumpstep.php [L]
+    
+    RewriteRule ^api/projects/wayleaves/roads/([a-z]+)/([a-zA-Z0-9]{8})$ /api/v1/projects/wayleaves/roads.php?sid=$2&action=$1 [QSA,L]
+
+    # Permits
+    RewriteRule ^api/projects/permits/checklist/([a-zA-Z0-9]{16})$          /api/v1/projects/permits/checklist.php?sid=$1 [L]
+    RewriteRule ^api/projects/permits/expiry        /api/v1/projects/permits/expiryCheck.php [L]
+
+    #Summary
+    RewriteRule ^api/wayleave/summary/([a-zA-Z]+)$           /api/v1/projects/wayleaves/summary/$1.php [L]
+    RewriteRule ^api/wayleave/summary/([a-zA-Z]+)/([a-zA-Z0-9]{16})$         /api/v1/projects/wayleaves/summary/$1.php?sid=$2 [L]
+
+    #Deposit
+    RewriteRule ^api/wayleave/deposit/([a-zA-Z]+)$           /api/v1/projects/wayleaves/deposit/$1.php [L]
+    RewriteRule ^api/wayleave/deposit/([a-zA-Z]+)/([a-zA-Z0-9]{16})$         /api/v1/projects/wayleaves/deposit/$1.php?sid=$2 [L]
+
+    # Surveys
+    RewriteRule ^api/surveys/team/([a-z]+)$      /api/v1/survey/team/$1.php [QSA,L]
+    RewriteRule ^api/surveys/priority/([a-z]+)$      /api/v1/survey/priority/$1.php [L]
+    RewriteRule ^api/surveys/tasks/([a-z]+)$      /api/v1/survey/tasks/$1.php [L]
+    RewriteRule ^api/surveys/([a-z]+)$      /api/v1/survey/$1.php [QSA,L]
+
+    #QRCode Plan
+
+    RewriteRule ^api/qrcode/download/([a-zA-Z]+)/([a-zA-Z0-9]{8})$    /api/v1/survey/$1.php?sid=$2 [QSA,L]
+
+    # Letters
+    RewriteRule ^api/letters/([a-z]+)$          /api/v1/letters/$1.php [L]
+
+    #Letter In
+    RewriteRule ^api/letter/in/([a-z]+)$        /api/v1/letterIn/$1.php [L]
+
+    # Listings
+    RewriteRule ^api/status/lists               /api/v1/lists/status.php [L]
+    RewriteRule ^api/lists/([a-zA-Z]+)$         /api/v1/lists/$1.php [L]
+    RewriteRule ^api/status/lists/([a-z]+)$     /api/v1/lists/$1.php [L]
+    RewriteRule ^api/postcode/(\d+)$            /api/v1/lists/postcode.php?postcode=$1 [L]
+
+    # Calender
+    RewriteRule ^api/calendar/([a-zA-Z0-9]+)/([a-zA-Z0-9=]+)$           /api/v1/calendar/index.php?item=$1&sid=$2 [QSA,L]
+    RewriteRule ^api/calendar/([a-zA-Z0-9]+)$                           /api/v1/calendar/index.php?item=$1 [QSA,L]
+    RewriteRule ^api/calendar                                           /api/v1/calendar/index.php [L]
+
+    # Reports
+    RewriteRule ^api/reports/geometry/([a-zA-Z]+)$                     /api/v1/reports/geom/$1.php [QSA,L]
+    RewriteRule ^api/reports/summary/([a-z]+)$                      /api/v1/reports/summary/$1.php [QSA,L]
+    RewriteRule ^api/reports/([a-zA-Z0-9=]+)$                       /api/v1/reports/index.php?id=$1 [QSA,L]
+    RewriteRule ^api/reports/site/amend/review/([a-zA-Z0-9=]+)$     /api/v1/projects/sites/approvalAmendReview.php?sid=$1 [QSA,L]
+
+    RewriteRule ^api/reports/tp/amend/([a-zA-Z]+)/([A-Z0-9]{8})$          /api/v1/reports/tpAmend.php?option=$1&sid=$2 [L]
+
+    # Records
+    RewriteRule ^api/records/entry/authority                        /api/v1/records/entryAuthority.php [QSA,L]
+    RewriteRule ^api/records/entry/([a-z]+)/([A-Z0-9]{8})$          /api/v1/records/entry.php?option=$1&id=$2 [L]
+    RewriteRule ^api/records/reference/([a-z]+)$                    /api/v1/records/reference.php?option=$1 [L]
+
+    # Search
+    RewriteRule ^api/search/projects/([a-zA-Z0-9]+)/([0-9]+)$             /api/v1/search/projects.php?search=$1/$2 [QSA,L]
+    RewriteRule ^api/search/projects/([a-zA-Z0-9]+)$                      /api/v1/search/projects.php?search=$1 [QSA,L]
+
+    # Tracker
+    RewriteRule ^api/tracker/all            /api/v1/trackers/tracker-all.php [L]
+    RewriteRule ^api/tracker/utility        /api/v1/trackers/tracker-utility.php [L]
+    RewriteRule ^api/tracker                /api/v1/trackers/tracker.php [L]
+
+    # Notes
+    RewriteRule ^api/notes/authority/([A-Z0-9]{8})$            /api/v1/notes/add.php?sysId=$1 [QSA,L]
+    RewriteRule ^api/notes/([a-zA-Z0-9]+)$             /api/v1/notes/add.php?type=$1 [QSA,L]
+
+
+
+
+    # Telegram Bots
+    RewriteRule ^api/notification/([a-z]+)$          /api/v1/telegram/$1.php [L]
+
+
+    # Gateways [submissions,amendments, payments]
+    RewriteRule ^gateway/([a-z]+)$                                 /api/v1/gateways/$1.php [L]
+    RewriteRule ^gateway/([a-z]+)/([a-z]+)$                         /api/v1/gateways/$1/$2.php [L]
+    RewriteRule ^gateway/([a-z]+)/([a-zA-Z]+)/([a-zA-Z0-9]{8})$        /api/v1/gateways/$1/$2.php?subId=$3 [L]
+
+    RewriteRule ^gateway/projects/details                       /api/v1/gateways/projects/details.php [QSA,L]
+
+    RewriteRule ^api/uuid$                   /uuid.php [L]
+    RewriteRule ^geommm/uuid$                   /api/v1/reports/geom/uuid.php [L]
+
+
+
+    ######## APPS CONFIGURATIONS ########
+
+    # Redirect .PHP -> None
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /([^\ ]+)\.php
+    RewriteRule ^/?(.*)\.php$ /$1 [L,R=301]
+
+    # Redirect None -> .PHP
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^/?(.*)$ /$1.php [L]
+
+    # All routes request to index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [L]
+
+
+</IfModule>

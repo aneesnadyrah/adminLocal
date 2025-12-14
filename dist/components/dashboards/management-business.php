@@ -1,0 +1,25 @@
+
+<!--begin::Row-->
+<div class="row mb-10 g-5 g-xl-10">
+    <?php $dashboard->bigTaskOverview() ?>
+</div>
+<div class="row g-5 g-xl-10">
+    <!--begin::Col-->
+    <div class="col-xl-4">
+        <!--end::Row-->
+        <!--begin::Gauge Chart-->
+        <?php //$dashboard->gaugeChart(2)?>
+        <?php $dashboard->radialChart() ?>
+        <!--end::Gauge Chart-->
+    </div>
+    <!--end::Col-->
+    <!--begin::Col-->
+    <div class="col-xxl-8">
+        <!--begin::Chart Overview-->
+        <?php $dashboard->lineChart() ?>
+        <!--end::Chart Overview-->
+    </div>
+    <!--end::Col-->
+</div>
+<!--end::Row-->
+

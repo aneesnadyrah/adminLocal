@@ -1,0 +1,404 @@
+#map {
+  height: 100%;
+  width: 100vw;
+  border-radius: 0 !important;
+}
+
+.modal-content {
+  border-radius: 15px !important;
+}
+
+.modal-header {
+  padding: 0px !important;
+  border-bottom: 0px !important;
+}
+
+.dropzone {
+  height: 300px !important;
+  width: 100% !important;
+  padding: 0px !important;
+  border: 0px !important;
+  border-radius: 0px !important;
+  border-top-left-radius: 15px !important;
+  border-top-right-radius: 15px !important;
+  background-color: var(--bs-secondary);
+}
+
+.dropzone .dz-message {
+  width: 50% !important;
+  padding: 10px !important;
+  display: block !important;
+  margin: inherit !important;
+  text-align: center !important;
+}
+
+.dropzone .dz-preview {
+  position: inherit !important;
+  display: inherit !important;
+  vertical-align: top !important;
+  margin: 0px !important;
+  height: 300px !important;
+}
+
+.dropzone .dz-preview .dz-image {
+  border-radius: 0px !important;
+  border-top-left-radius: 15px !important;
+  border-top-right-radius: 15px !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  height: 300px !important;
+  position: relative !important;
+  display: block !important;
+  z-index: 2 !important;
+  top: -40px !important;
+}
+
+.dropzone .dz-preview .dz-image img {
+  display: block !important;
+  width: 100% !important;
+  height: 300px !important;
+  object-fit: cover !important;
+}
+
+.dropzone .dz-preview .dz-progress {
+  height: 10px !important;
+  left: 25% !important;
+  margin-top: -20px !important;
+  width: 300px !important;
+  margin-left: -30px !important;
+}
+
+.dropzone .dz-remove {
+  height: 3rem !important;
+  width: 3rem !important;
+  top: -1.5rem !important;
+  right: -1.5rem !important;
+}
+
+.fa-stack {
+  display: inline-block !important;
+  height: 0px !important;
+  width: 1rem !important;
+  vertical-align: baseline !important;
+}
+
+.leaflet-container .leaflet-popup-content-wrapper {
+  border-radius: 15px !important;
+}
+
+/* attribution and scale controls */
+.leaflet-container .leaflet-control-attribution {
+  display: none;
+}
+
+.leaflet-touch .leaflet-bar a {
+  width: 48px !important;
+  height: 48px !important;
+  line-height: 50px;
+}
+
+.leaflet-control.leaflet-compass,
+.leaflet-compass .compass-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 18px !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.leaflet-compass .compass-icon {
+  height: 28px;
+  width: 28px;
+  margin: 0;
+  background: url("/assets/media/maps/compass-default.svg") center center no-repeat;
+}
+
+.leaflet-compass .compass-alert {
+  position: absolute;
+  right: 50px;
+  bottom: 0px;
+  width: 120px;
+  padding: 10px;
+  line-height: 1.25em;
+  font-size: 11px;
+  color: var(--bs-danger);
+  font-family: var(--bs-font-sans-serif);
+  border: 0px solid transparent;
+  background-color: var(--bs-danger-light) !important;
+  border-radius: 5px;
+  box-shadow: var(--bs-box-shadow) !important;
+}
+
+.leaflet-touch .leaflet-bar a:last-child {
+  background-color: var(--bs-body-bg) !important;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: var(--bs-box-shadow-sm) !important;
+}
+
+.leaflet-touch .leaflet-bar a:first-child {
+  background-color: var(--bs-body-bg) !important;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  box-shadow: var(--bs-box-shadow-sm) !important;
+}
+
+.leaflet-touch .leaflet-bar a.leaflet-control-zoom-in {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  box-shadow: var(--bs-box-shadow-sm) !important;
+}
+
+.leaflet-touch .leaflet-bar a.leaflet-control-zoom-out {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: var(--bs-box-shadow-sm) !important;
+}
+
+.leflet-control-zoom-out span {
+  font-family: var(--bs-font-sans-serif);
+  color: var(--bs-text-gray-500) !important;
+  line-height: 50px !important;
+}
+
+.leaflet-control-locate a .leaflet-control-locate-location-arrow {
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  margin-top: 10px;
+  width: 26px;
+  height: 26px;
+  background-image: url("/assets/media/maps/location-disabled.svg");
+}
+
+.leaflet-control-locate a .leaflet-control-locate-spinner {
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  margin-top: 12px;
+  width: 26px;
+  height: 26px;
+  background-image: url("/assets/media/maps/spinner-third.svg");
+  animation: leaflet-control-locate-spin 2s linear infinite;
+}
+
+.leaflet-control-locate.active a .leaflet-control-locate-location-arrow {
+  background-image: url("/assets/media/maps/location-disabled.svg");
+}
+
+.leaflet-control-locate.following a .leaflet-control-locate-location-arrow {
+  background-image: url("/assets/media/maps/location-active.svg");
+}
+
+.leaflet-pm-toolbar .button-container a.leaflet-buttons-control-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+  width: 48px !important;
+  height: 48px !important;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, transform 0.3s ease !important;
+  background-color: var(--bs-body-bg) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--bs-box-shadow) !important;
+}
+
+.leaflet-center .leaflet-control {
+  margin-bottom: 20px !important;
+}
+
+.leaflet-pm-toolbar .control-icon {
+  width: 60%;
+  height: 60%;
+  box-sizing: border-box;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-marker {
+  background-image: url("/assets/media/maps/pin-default.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-marker:hover,
+.leaflet-pm-toolbar .leaflet-pm-icon-marker:active {
+  background-image: url("/assets/media/maps/pin-active.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-polyline {
+  background-image: url("/assets/media/maps/pen-default.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-polyline:hover,
+.leaflet-pm-toolbar .leaflet-pm-icon-polyline:active {
+  background-image: url("/assets/media/maps/pen-active.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-polygon {
+  background-image: url("/assets/media/maps/polygon-default.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-polygon:hover,
+.leaflet-pm-toolbar .leaflet-pm-icon-polygon:active {
+  background-image: url("/assets/media/maps/polygon-active.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-polyline {
+  background-image: url("/assets/media/maps/pen-default.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-polyline:hover,
+.leaflet-pm-toolbar .leaflet-pm-icon-polyline:active {
+  background-image: url("/assets/media/maps/pen-active.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-edit {
+  background-image: url("/assets/media/maps/edit-default.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-edit:hover,
+.leaflet-pm-toolbar .leaflet-pm-icon-edit:active {
+  background-image: url("/assets/media/maps/edit-active.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-drag {
+  background-image: url("/assets/media/maps/move-default.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-drag:hover,
+.leaflet-pm-toolbar .leaflet-pm-icon-drag:active {
+  background-image: url("/assets/media/maps/move-active.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-delete {
+  background-image: url("/assets/media/maps/eraser-default.svg") !important;
+}
+
+.leaflet-pm-toolbar .leaflet-pm-icon-delete:hover,
+.leaflet-pm-toolbar .leaflet-pm-icon-delete:active {
+  background-image: url("/assets/media/maps/eraser-active.svg") !important;
+}
+
+.button-container .leaflet-pm-actions-container a.leaflet-pm-action {
+  margin-left: 5px !important;
+  margin-top: 10px !important;
+  height: 30px !important;
+  width: auto !important;
+  border-radius: 22px !important;
+  background-color: var(--bs-text-gray-500) !important;
+  color: var(--bs-text-light) !important;
+  font-size: 12px;
+  box-shadow: var(--bs-box-shadow-sm) !important;
+}
+
+.leaflet-center {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+  top: 50%; /* possible because the placeholder's parent is the map */
+  transform: translateY(-50%); /* using the CSS3 Transform technique */
+  padding-top: 10px;
+}
+
+.leaflet-center .leaflet-control {
+  margin-bottom: 10px;
+}
+
+.leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar {
+  border: none !important;
+}
+
+.btn-edit {
+  position: relative;
+  z-index: 10;
+}
+
+.report-image {
+  width: 111.5%;
+  position: relative;
+  top: -60px;
+  left: -21px;
+  border-top-left-radius: 15px !important;
+  border-top-right-radius: 15px !important;
+}
+
+.btn.btn-save {
+  border-radius: var(--bs-card-border-radius) !important;
+}
+
+.signature-pad {
+  box-sizing: border-box;
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  font-size: 10px;
+  height: 100vh;
+  width: 100%;
+  /* width: 100%;
+  height: 100%; */
+  max-width: 700px;
+  max-height: 460px;
+  border: 1px solid #e8e8e8;
+  background-color: #fff;
+  /* box-shadow: 0 1px 4px rgba(0, 0, 0, 0.27), 0 0 40px rgba(0, 0, 0, 0.08) inset; */
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.signature-pad::before,
+.signature-pad::after {
+  box-sizing: border-box;
+  position: absolute;
+  z-index: -1;
+  content: "";
+  width: 40%;
+  height: 10px;
+  bottom: 10px;
+  background: transparent;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.4);
+}
+
+.signature-pad::before {
+  box-sizing: border-box;
+  left: 20px;
+  -webkit-transform: skew(-3deg) rotate(-3deg);
+  transform: skew(-3deg) rotate(-3deg);
+}
+
+.signature-pad::after {
+  box-sizing: border-box;
+  right: 20px;
+  -webkit-transform: skew(3deg) rotate(3deg);
+  transform: skew(3deg) rotate(3deg);
+}
+
+.signature-pad--body {
+  box-sizing: border-box;
+  position: relative;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  border: 1px solid #f4f4f4;
+}
+
+.signature-pad--body canvas {
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.02) inset;
+}

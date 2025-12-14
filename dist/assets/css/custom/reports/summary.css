@@ -1,0 +1,103 @@
+.report-review-pic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+}
+
+.report-review-pic img {
+  max-width: 100%;
+  /* max-height: 100%; */
+  /* comment out for now */
+  max-height: 200px;
+  object-fit: contain;
+}
+
+.report-review-pic p {
+  margin-top: 10px;
+}
+
+.report-approval-sign {
+  max-width: 80%;
+  object-fit: contain;
+}
+
+.signature-pad {
+  box-sizing: border-box;
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  font-size: 10px;
+  height: 100vh;
+  width: 100%;
+  /* width: 100%;
+  height: 100%; */
+  max-width: 700px;
+  max-height: 460px;
+  border: 1px solid #e8e8e8;
+  background-color: #fff;
+  /* box-shadow: 0 1px 4px rgba(0, 0, 0, 0.27), 0 0 40px rgba(0, 0, 0, 0.08) inset; */
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.signature-pad::before,
+.signature-pad::after {
+  box-sizing: border-box;
+  position: absolute;
+  z-index: -1;
+  content: "";
+  width: 40%;
+  height: 10px;
+  bottom: 10px;
+  background: transparent;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.4);
+}
+
+.signature-pad::before {
+  box-sizing: border-box;
+  left: 20px;
+  -webkit-transform: skew(-3deg) rotate(-3deg);
+  transform: skew(-3deg) rotate(-3deg);
+}
+
+.signature-pad::after {
+  box-sizing: border-box;
+  right: 20px;
+  -webkit-transform: skew(3deg) rotate(3deg);
+  transform: skew(3deg) rotate(3deg);
+}
+
+.signature-pad--body {
+  box-sizing: border-box;
+  position: relative;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  border: 1px solid #f4f4f4;
+}
+
+.signature-pad--body canvas {
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.02) inset;
+}
+
+/* Add a custom class for the badge with word wrapping */
+.badge-wrap {
+  white-space: normal !important;
+  display: inline-block;
+  max-width: 100%;
+  word-wrap: break-word;
+}

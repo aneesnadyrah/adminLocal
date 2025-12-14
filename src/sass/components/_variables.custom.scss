@@ -1,0 +1,54 @@
+//
+// To make future updates easier consider overriding the global variables from _variables.bootstrap.scss and _variables.custom.scss for current demo in this file.
+// Note that this file is included first and variables defined in _variables.bootstrap.scss and _variables.custom.scss
+// are not accessible in this file but you can override any global variable as shown below:
+//
+
+// Theme colors
+// Primary
+$primary:       									#159879;
+$primary-active:    								#095d49;
+$primary-light:    									#e2fff8;
+$primary-light-dark:    							#1d453c;
+$primary-inverse:  									#ffffff;
+
+// Secondary
+// $secondary:                                         #C59722;
+// $secondary-active:                                  #8F6F14;
+// $secondary-light:                                   #F9E4B4;
+// $secondary-light-dark:                              #4D4D4D;
+// $secondary-inverse:                                 #FFFFFF;
+
+// Success
+$success:       									#75CC68;
+$success-active:    								#48c835;
+$success-light:    								    #edffea;
+$success-light-dark:    							#1e3a1a;
+$success-inverse:  									#ffffff;
+
+// Info
+$info:       									    #7239ea;
+$info-active:    									#5014d0;
+$info-light:    									#f8f5ff;
+$info-light-dark:    									#2f264f;
+$info-inverse:  									#ffffff;
+
+// Danger
+$danger:       									    #f1416c;
+$danger-active:    									#d9214e;
+$danger-light:    									#fff5f8;
+$danger-light-dark:   								#3a2434;
+$danger-inverse:  									#ffffff;
+
+// Warning
+$warning:       									#ffc700;
+$warning-active:    								#f1bc00;
+$warning-light:    									#fff8dd;
+$warning-light-dark:								#392f28;
+$warning-inverse:  									#ffffff;
+
+// Card Box Shadow
+$card-box-shadow:                                   0px 10px 35px 0px rgba(56,71,109,0.075);
+$card-box-shadow-dark:                              none;
+$card-border-radius:                                0.85rem;
+

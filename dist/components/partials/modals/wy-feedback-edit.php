@@ -1,0 +1,951 @@
+
+<?php
+
+if (!empty($_GET['sid']) && !empty($_GET['id'])) {
+    $sysID = $_GET['sid'];
+    $letterWyFeedback_id = $_GET['id'];
+}
+
+$option = '<option></option>';
+$option2 = '<option></option>';
+$option3 = '<option></option>';
+
+date_default_timezone_set('Asia/Kuala_Lumpur');
+$current_date = new DateTime();
+$generateDate = $current_date->format('Y-m-d H:i:s');
+$letter_date = General::convertDate($generateDate); //date in masihi
+$hijri_date = Wayleave::convertToHijri($generateDate); // date in hijri
+
+if($letterWyFeedback_id == 4) {
+    $wayleave_mkil = Wayleave::wyFeedbackModelAmend($_GET['sid']); //for amend based on status = 4 (tak sah)
+} else {
+    $wayleave_mkil = Wayleave::wyFeedbackModelEdit($sysID,$letterWyFeedback_id); //for edit based on letterWyFeedback_id
+}
+
+if($appsTitle == 'UCIDOS' || $appsTitle == 'KUDRAT') {
+    foreach ($wayleave_mkil as $row) {
+        $datepickerId = 'datepicker-' . $row['Status']. $row['StatusID'];
+        $selectedValue = $row['StaffApproval'];
+        $selectedName = $row['StaffName'];
+        $selectedName2 = $row['StaffName2'];
+
+        foreach (Wayleave::assignStaff(1) as $data2) {
+            if($data2['ProfilePic'] == null){
+                $img = "blank";
+            }
+            else{
+                $img = $data2['ProfilePic'];
+            };
+            $name = $data2['FirstName'].' '.$data2['LastName'];
+            $id = $data2['username'];
+            $contact = $data2['StaffPhoneNo'];
+        
+            $option .= '<option value="'.$id.'" data-staff="'.General::getProfile($img).'.jpg" data-contact="'.$contact.'"';
+            if ($id == $selectedName) {
+                $option .= ' selected';
+            }
+            $option .= '>'.$name.'</option>';
+
+            $option2 .= '<option value="'.$id.'" data-staff="'.General::getProfile($img).'.jpg" data-contact="'.$contact.'"';
+            if ($id == $selectedName2) {
+                $option2 .= ' selected';
+            }
+            $option2 .= '>'.$name.'</option>';
+
+        }
+
+        foreach (Wayleave::assignStaff(2) as $data) {
+            if($data['ProfilePic'] == null){
+                $img = "blank";
+            }
+            else{
+                $img = $data['ProfilePic'];
+            };
+            $name = $data['FirstName'].' '.$data['LastName'];
+            $id = $data['username'];
+            $contact = $data['StaffPhoneNo'];
+            $position = $data['Position'];
+        
+            $option3 .= '<option value="'.$id.'" data-staff="'.General::getProfile($img).'.jpg" data-position="'.$position.'"';
+            if ($id == $selectedValue) {
+                $option3 .= ' selected';
+            }
+            $option3 .= '>'.$name.'</option>';
+        }
+?>
+        <!--begin::Modal - mkil - Edit-->
+        <div class="modal fade" data-bs-backdrop="static" tabindex="-1" id="edit-feedback-generate" >
+            <div class="modal-dialog modal-dialog-centered mw-650px">
+                <!--begin::modal-content-->
+                <div class="modal-content">
+                    <!--begin::modal header-->
+                    <div class="modal-header">
+                        <h3 class="modal-title">Kemaskini Surat Maklum Balas Kelulusan Izin Lalu</h3>
+
+                        <!--begin::Close-->
+                        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="fad fa-xmark fs-2"></i>
+                        </div>
+                        <!--end::Close-->
+                    </div>
+                    <!--end::modal header-->
+                    <!--begin::modal body-->
+                    <div class="modal-body hover-scroll-y pt-10 pb-15 px-lg-17">
+                        <!--begin::Stepper-->
+                        <div class="stepper stepper-links" id="kt_stepper_mbkil_edit">
+                            <!--begin::Nav-->
+                            <div class="stepper-nav flex-center flex-wrap mb-8">
+                                <!--begin::Step 1-->
+                                <div class="stepper-item current" data-kt-stepper-element="nav">
+                                    <h3 class="stepper-title">Provider</h3>
+                                </div>
+                                <!--end::Step 1-->
+                                <!--begin::Step 2-->
+                                <div class="stepper-item" data-kt-stepper-element="nav">
+                                    <h3 class="stepper-title">Pemohon</h3>
+                                </div>
+                                <!--end::Step 2-->
+                                <!--begin::Step 3-->
+                                <div class="stepper-item" data-kt-stepper-element="nav">
+                                    <h3 class="stepper-title">Projek</h3>
+                                </div>
+                                <!--end::Step 3-->
+                                <!--begin::Step 4-->
+                                <div class="stepper-item" data-kt-stepper-element="nav">
+                                    <h3 class="stepper-title">Surat</h3>
+                                </div>
+                                <!--end::Step 4-->
+                            </div>
+                            <!--end::Nav-->
+                            <!--begin::Form-->
+                            <form class="form fv-plugins-bootstrap5 fv-plugins-framework" novalidate="novalidate" id="form-mbkil-edit">
+                                <!--begin::Scroll-->
+                                <div class="hover-scroll h-300px px-5 mb-10">
+                                    <!--begin::Group-->
+                                    <div class="mb-5">
+                                        <!--begin::Step 1-->
+                                        <div class="flex-column current" data-kt-stepper-element="content">
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <label class="d-flex flex-stack mb-5">
+                                                    <!--begin:Label-->
+                                                    <span class="d-flex align-items-center me-2">
+                                                        <!--begin::Description-->
+                                                        <span class="d-flex flex-column">
+                                                            <span class="form-label">Penyedia Utiliti</span>
+                                                            <span class="fs-6 text-muted"><?php echo $row['ProviderName'] ?></span>
+                                                        </span>
+                                                        <!--end:Description-->
+                                                    </span>
+                                                    <!--end:Label-->
+                                                </label>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Alamat</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input class="form-control form-control-lg form-control-solid" name="addr_provider_1" value="<?php echo $row['AddrProvider1'] ?>">
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                                <input class="form-control form-control-lg form-control-solid mb-2" name="addr_provider_2" value="<?php echo $row['AddrProvider2'] ?>">
+                                                <input class="form-control form-control-lg form-control-solid mb-2" name="addr_provider_3" value="<?php echo $row['AddrProvider3'] ?>">
+                                                <!--end::Input-->
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Untuk Perhatian<i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip" aria-label="Merujuk kepada Untuk perhatian surat cth: (U.P.: Ahmad Hafiz)" data-bs-original-title="Merujuk kepada Untuk perhatian surat cth: (U.P.: Ahmad Hafiz)" data-kt-initialized="1"></i></label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input class="form-control form-control-lg form-control-solid" name="up_provider" value="<?php echo $row['UpProvider'] ?>">
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+                                        </div>
+                                        <!--end::Step 1-->
+                                        <!--begin::Step 2-->
+                                        <div class="flex-column" data-kt-stepper-element="content">
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <label class="d-flex flex-stack mb-5">
+                                                    <!--begin:Label-->
+                                                    <span class="d-flex align-items-center me-2">
+                                                        <!--begin::Description-->
+                                                        <span class="d-flex flex-column">
+                                                            <span class="form-label">Nama Syarikat</span>
+                                                            <?php
+                                                                $data = explode(",", $row['ContactId']);
+                                                                $firstElement = $data[0];
+                                                                $contactId = trim($firstElement, '{}'); // Remove curly braces
+                                                                $contact = Wayleave::getContacts($contactId);
+
+                                                                foreach ($contact as $row3) {
+                                                                    echo '<span class="fs-6 text-muted">' . $row3['CompanyName'] . '</span>';
+                                                                }
+                                                            ?>
+                                                        </span>
+                                                        <!--end:Description-->
+                                                    </span>
+                                                    <!--end:Label-->
+                                                </label>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Alamat</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input class="form-control form-control-lg form-control-solid" name="addr_client_1" value="<?php echo $row['AddrClient1'] ?>">
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                                <input class="form-control form-control-lg form-control-solid mb-2" name="addr_client_2" value="<?php echo $row['AddrClient2'] ?>">
+                                                <input class="form-control form-control-lg form-control-solid mb-2" name="addr_client_3" value="<?php echo $row['AddrClient3'] ?>">
+                                                <!--end::Input-->
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Untuk Perhatian<i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip" aria-label="Merujuk kepada Untuk perhatian surat cth: (U.P.: Ahmad Hafiz)" data-bs-original-title="Merujuk kepada Untuk perhatian surat cth: (U.P.: Ahmad Hafiz)" data-kt-initialized="1"></i></label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input class="form-control form-control-lg form-control-solid" name="up_pemohon" value="<?php echo $row['UpClient'] ?>">
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+                                        </div>
+                                        <!--begin::Step 2-->
+                                        <!--begin::Step 3-->
+                                        <div class="flex-column" data-kt-stepper-element="content">
+                                            <!--begin::Input group-->
+                                            <div class="pe-3 mb-5">
+                                                <div class="fs-6 fw-semibold mb-2">Tajuk Projek</div>
+                                                <div class="d-flex align-items-center mt-1 fs-6">
+                                                    <div class="text-muted me-2 fs-6"><?php echo $row['ProjectTitle'] ?></div>
+                                                </div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="pe-3 mb-5">
+                                            <?php 
+                                                $i = 1;
+                                                $road = Wayleave::getRoad($row['SysID']);
+                                                foreach ($road as $row4) {
+                                                    $data = explode(",", $row4['RoadId']);
+                                                    ?>
+                                                    <div class="fs-5 fw-bold mb-2"><?php echo $i.".  ". $row4['AuthorityName'] ?></div>
+
+                                                    <?php
+                                                    foreach ($data as $rTrim) {
+                                                        $roadIdTrim = trim($rTrim, '{}'); // Remove curly braces
+                                                        $road_name = Wayleave::getRoadName($roadIdTrim);
+
+                                                        foreach ($road_name as $rData) { ?>
+                                                            <!--begin::Input group-->
+                                                            <div class="pe-3 mb-5">
+                                                                <div class="fs-6 fw-semibold mb-2">Jalan Terlibat :</div>
+                                                                <div class="d-flex align-items-center mt-1 fs-6">
+                                                                    <div class="text-muted me-2 fs-6"><?php echo $rData['RoadName'] ?></div>
+                                                                </div>
+                                                            </div>
+                                                            <!--end::Input group-->
+
+                                                            <?php
+                                                        }
+                                                            ?>
+
+                                                            <!--begin::Repeater-->
+                                                            <div id="kwc-involved">
+                                                                <!--begin::Form group-->
+                                                                <div class="form-group">
+                                                                    <div data-repeater-list="kwc-list">
+                                                                        <div data-repeater-item>
+                                                                            <div class="form-group row mb-5">
+                                                                                <div class="col-12 col-md-12 mb-2 fv-row">
+                                                                                    <label class="form-label required">Tempoh KIL</label>
+                                                                                    <input type="text" name="period_kil" class="form-control form-control-lg form-control-solid" value="<?php echo $row4['PeriodKil'] ?>">
+                                                                                </div>
+                                                                                <div class="col-12 col-md-12 mb-2 fv-row">
+                                                                                    <label class="form-label required">Keterangan Bayaran</label>
+                                                                                    <input type="text" name="payment_detail" class="form-control form-control-lg form-control-solid" value="<?php echo $row4['PaymentDetail'] ?>">
+                                                                                </div>
+                                                                                <div class="col-12 col-md-12 mb-2 fv-row">
+                                                                                    <label class="form-label required">Jumlah (RM)</label>
+                                                                                    <input type="text" name="amount" class="form-control form-control-lg form-control-solid" value="<?php echo $row4['Amount'] ?>"> 
+                                                                                </div>
+                                                                                <input type="text" name="authority_id" value="<?php echo $row4['AuthorityId'] ?>" hidden>
+                                                                                <div class="separator separator-dashed mt-2"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!--end::Form group-->
+                                                                </div>
+                                                                <!--end::Form group-->
+                                                            </div>
+                                                            <!--end::Repeater-->
+                                                    <?php
+                                                    }
+                                                    $i++;
+                                                    echo '<input type="text" name="entry_list_road_id" value="'.$row4['RoadId'].'" hidden>';
+                                                }
+                                            ?>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                        </div>
+                                        <!--begin::Step 3-->
+                                        <!--begin::Step 4-->
+                                        <div class="flex-column" data-kt-stepper-element="content">
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <label class="d-flex flex-stack mb-5">
+                                                    <!--begin:Label-->
+                                                    <span class="d-flex align-items-center me-2">
+                                                        <!--begin::Description-->
+                                                        <span class="d-flex flex-column">
+                                                            <span class="form-label">Tarikh</span>
+                                                            <?php
+                                                                if($row['Status'] == 47) {
+                                                                    echo '<span class="fs-6 text-muted">'. General::convertDate($row['LetterDate']) .'</span>';
+                                                                } else {
+                                                                    echo '<span class="fs-6 text-muted">'. $letter_date .'</span>';
+                                                                }
+                                                            ?>
+                                                        </span>
+                                                        <!--end:Description-->
+                                                    </span>
+                                                    <!--end:Label-->
+
+                                                    <!--begin:Label-->
+                                                    <span class="d-flex align-items-center me-2">
+                                                        <!--begin::Description-->
+                                                        <span class="d-flex flex-column">
+                                                            <span class="form-label">No Rujukan Surat</span>
+                                                            <span class="fs-6 text-muted"><?php echo $row['LetterRefNo'] ?></span>
+                                                        </span>
+                                                        <!--end:Description-->
+                                                    </span>
+                                                    <!--end:Label-->
+                                                </label>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label">No Rujukan Tuan</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input class="form-control form-control-lg form-control-solid" name="client_ref_no" value="<?php echo $row['ClientRefNo'] ?>">
+                                                <!--end::Input-->
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Pegawai 1 Untuk Dihubungi</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <select id="selection-staff" class="form-control form-control-lg form-control-solid" name="staff_name" data-placeholder="Sila Pilih Pegawai" data-allow-clear="true"><?php echo $option ?></select>
+                                                
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label">No Telefon Pegawai 1 Untuk Dihubungi</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input id="staff_contact" class="form-control form-control-lg form-control-solid" name="staff_contact" readonly value="<?php echo $row['StaffContact'] ?>">
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Pegawai 2 Untuk Dihubungi</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <select id="selection-staff2" class="form-control form-control-lg form-control-solid" name="staff_name_2" data-placeholder="Sila Pilih Pegawai" data-allow-clear="true"><?php echo $option2 ?></select>
+                                                
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label">No Telefon Pegawai 2 Untuk Dihubungi</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input id="staff_contact_2" class="form-control form-control-lg form-control-solid" name="staff_contact_2" readonly value="<?php echo $row['StaffContact2'] ?>">                                                       
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Pegawai Melulus</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <select id="selection-approval" class="form-control form-control-lg form-control-solid" name="approval_by" data-placeholder="Sila Pilih Pegawai Melulus" data-allow-clear="true"><?php echo $option3 ?></select>
+                                                
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label">Jawatan Pegawai Melulus</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input id="approval_position" class="form-control form-control-lg form-control-solid" name="approval_position" readonly value="<?php echo $row['StaffApprovalPosition'] ?>">                                                       
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+                                        </div>
+                                        <!--end::Step 4-->
+                                    </div>
+                                    <!--end::Group-->
+                                </div>
+                                <!--end::Scroll-->
+
+                                <input type="text" name="system_id" value="<?php echo $row['SysID'] ?>" hidden>
+                                <input type="text" name="item" value="generate-wyFeedback-edit" hidden>
+                                <input type="text" name="letter_date" value="<?php echo $current_date->format('Y-m-d') ?>" hidden>
+                                <input type="text" name="letter_ref_no" value="<?php echo $row['LetterRefNo'] ?>" hidden>
+                                <input type="text" name="item_42_edit" value="wyFeedback-edit-ucidos" hidden>
+                                <input type="text" name="wy_feedback_id" value="<?php echo $row['WyFeedbackId'] ?>" hidden>
+                                <input type="text" name="status" value="<?php echo $row['Status'] ?>" hidden>
+                                <input type="text" name="authority_id" value="<?php echo $row['AuthorityID'] ?>" hidden>
+                                <input type="text" name="address_id" value="<?php echo $row['AddressID'] ?>" hidden>
+
+                                <!--begin::Actions-->
+                                <div class="d-flex flex-stack">
+                                    <!--begin::Wrapper-->
+                                    <div class="me-2">
+                                        <button type="button" class="btn btn-light btn-active-light-primary" data-kt-stepper-action="previous">
+                                            Sebelumnya
+                                        </button>
+                                    </div>
+                                    <!--end::Wrapper-->
+
+                                    <!--begin::Wrapper-->
+                                    <div>
+                                        <button type="submit" id="wyFeedback-edit-submit" class="btn btn-primary" data-kt-stepper-action="submit">
+                                            <span class="indicator-label">
+                                                Hantar
+                                            </span>
+                                            <span class="indicator-progress">
+                                                Sila Tunggu... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                                            </span>
+                                        </button>
+
+                                        <button type="button" class="btn btn-primary" data-kt-stepper-action="next">
+                                            Seterusnya
+                                        </button>
+                                    </div>
+                                    <!--end::Wrapper-->
+                                </div>
+                                <!--end::Actions-->
+                            </form>
+                            <!--end::Form-->
+                        </div>
+                        <!--end::Stepper-->
+                    </div>
+                    <!--end::modal body-->
+                </div>
+                <!--end::modal-content-->
+            </div>
+        </div>
+        <!--end::Modal - mkil - Edit-->
+
+<?php
+    }
+
+} else if($appsTitle == 'KITER' || $appsTitle == 'KUK') {
+    foreach ($wayleave_mkil as $row) {
+        $datepickerId = 'datepicker-' . $row['Status']. $row['StatusID'];
+        $selectedValue = $row['StaffApproval'];
+        $selectedName = $row['StaffName'];
+
+        foreach (Wayleave::assignStaff(1) as $data2) {
+            if($data2['ProfilePic'] == null){
+                $img = "blank";
+            }
+            else{
+                $img = $data2['ProfilePic'];
+            };
+            $name = $data2['FirstName'].' '.$data2['LastName'];
+            $id = $data2['username'];
+            $contact = $data2['StaffPhoneNo'];
+        
+            $option .= '<option value="'.$id.'" data-staff="'.General::getProfile($img).'.jpg" data-contact="'.$contact.'"';
+            if ($id == $selectedName) {
+                $option .= ' selected';
+            }
+            $option .= '>'.$name.'</option>';
+        
+        }
+        
+        foreach (Wayleave::assignStaff(2) as $data) {
+            if($data['ProfilePic'] == null){
+                $img = "blank";
+            }
+            else{
+                $img = $data['ProfilePic'];
+            };
+            $name = $data['FirstName'].' '.$data['LastName'];
+            $id = $data['username'];
+            $contact = $data['StaffPhoneNo'];
+            $position = $data['Position'];
+        
+            $option3 .= '<option value="'.$id.'" data-staff="'.General::getProfile($img).'.jpg" data-position="'.$position.'"';
+            if ($id == $selectedValue) {
+                $option3 .= ' selected';
+            }
+            $option3 .= '>'.$name.'</option>';
+        }
+?>
+        <!--begin::Modal - mkil - Edit-->
+        <div class="modal fade" data-bs-backdrop="static" tabindex="-1" id="edit-feedback-generate" >
+            <div class="modal-dialog modal-dialog-centered mw-650px">
+                <!--begin::modal-content-->
+                <div class="modal-content">
+                    <!--begin::modal header-->
+                    <div class="modal-header">
+                        <h3 class="modal-title">Kemaskini Surat Maklum Balas Kelulusan Izin Lalu</h3>
+
+                        <!--begin::Close-->
+                        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="fad fa-xmark fs-2"></i>
+                        </div>
+                        <!--end::Close-->
+                    </div>
+                    <!--end::modal header-->
+                    <!--begin::modal body-->
+                    <div class="modal-body hover-scroll-y pt-10 pb-15 px-lg-17">
+                        <!--begin::Stepper-->
+                        <div class="stepper stepper-links" id="kt_stepper_mbkil_edit">
+                            <!--begin::Nav-->
+                            <div class="stepper-nav flex-center flex-wrap mb-8">
+                                <!--begin::Step 1-->
+                                <div class="stepper-item current" data-kt-stepper-element="nav">
+                                    <h3 class="stepper-title">Provider</h3>
+                                </div>
+                                <!--end::Step 1-->
+                                <!--begin::Step 2-->
+                                <div class="stepper-item" data-kt-stepper-element="nav">
+                                    <h3 class="stepper-title">Pemohon</h3>
+                                </div>
+                                <!--end::Step 2-->
+                                <!--begin::Step 3-->
+                                <div class="stepper-item" data-kt-stepper-element="nav">
+                                    <h3 class="stepper-title">Projek</h3>
+                                </div>
+                                <!--end::Step 3-->
+                                <!--begin::Step 4-->
+                                <div class="stepper-item" data-kt-stepper-element="nav">
+                                    <h3 class="stepper-title">Invois</h3>
+                                </div>
+                                <!--end::Step 4-->
+                                <!--begin::Step 5-->
+                                <div class="stepper-item" data-kt-stepper-element="nav">
+                                    <h3 class="stepper-title">Surat</h3>
+                                </div>
+                                <!--end::Step 5-->
+                            </div>
+                            <!--end::Nav-->
+                            <!--begin::Form-->
+                            <form class="form fv-plugins-bootstrap5 fv-plugins-framework" novalidate="novalidate" id="form-mbkil-edit">
+
+                                <!--begin::Scroll-->
+                                <div class="hover-scroll h-300px px-5 mb-10">
+                                    <!--begin::Group-->
+                                    <div class="mb-5">
+                                        <!--begin::Step 1-->
+                                        <div class="flex-column current" data-kt-stepper-element="content">
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <label class="d-flex flex-stack mb-5">
+                                                    <!--begin:Label-->
+                                                    <span class="d-flex align-items-center me-2">
+                                                        <!--begin::Description-->
+                                                        <span class="d-flex flex-column">
+                                                            <span class="form-label">Penyedia Utiliti</span>
+                                                            <span class="fs-6 text-muted"><?php echo $row['ProviderName'] ?></span>
+                                                        </span>
+                                                        <!--end:Description-->
+                                                    </span>
+                                                    <!--end:Label-->
+                                                </label>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Alamat</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input class="form-control form-control-lg form-control-solid" name="addr_provider_1" value="<?php echo $row['AddrProvider1'] ?>">
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                                <input class="form-control form-control-lg form-control-solid mb-2" name="addr_provider_2" value="<?php echo $row['AddrProvider2'] ?>">
+                                                <input class="form-control form-control-lg form-control-solid mb-2" name="addr_provider_3" value="<?php echo $row['AddrProvider3'] ?>">
+                                                <!--end::Input-->
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Untuk Perhatian<i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip" aria-label="Merujuk kepada Untuk perhatian surat cth: (U.P.: Ahmad Hafiz)" data-bs-original-title="Merujuk kepada Untuk perhatian surat cth: (U.P.: Ahmad Hafiz)" data-kt-initialized="1"></i></label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input class="form-control form-control-lg form-control-solid" name="up_provider" value="<?php echo $row['UpProvider'] ?>">
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+                                        </div>
+                                        <!--end::Step 1-->
+                                        <!--begin::Step 2-->
+                                        <div class="flex-column" data-kt-stepper-element="content">
+                                                <!--begin::Input group-->
+                                                <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                    <label class="d-flex flex-stack mb-5">
+                                                        <!--begin:Label-->
+                                                        <span class="d-flex align-items-center me-2">
+                                                            <!--begin::Description-->
+                                                            <span class="d-flex flex-column">
+                                                                <span class="form-label">Nama Syarikat</span>
+                                                                <?php
+                                                                    $data = explode(",", $row['ContactId']);
+                                                                    $firstElement = $data[0];
+                                                                    $contactId = trim($firstElement, '{}'); // Remove curly braces
+                                                                    $contact = Wayleave::getContacts($contactId);
+
+                                                                    foreach ($contact as $row3) {
+                                                                        echo '<span class="fs-6 text-muted">' . $row3['CompanyName'] . '</span>';
+                                                                    }
+                                                                ?>
+                                                            </span>
+                                                            <!--end:Description-->
+                                                        </span>
+                                                        <!--end:Label-->
+                                                    </label>
+                                                </div>
+                                                <!--end::Input group-->
+
+                                                <!--begin::Input group-->
+                                                <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                    <!--begin::Label-->
+                                                    <label class="form-label required">Alamat</label>
+                                                    <!--end::Label-->
+                                                    <!--begin::Input-->
+                                                    <input class="form-control form-control-lg form-control-solid" name="addr_client_1" value="<?php echo $row['AddrClient1'] ?>">
+                                                    <div class="fv-plugins-message-container invalid-feedback"></div>
+                                                    <input class="form-control form-control-lg form-control-solid mb-2" name="addr_client_2" value="<?php echo $row['AddrClient2'] ?>">
+                                                    <input class="form-control form-control-lg form-control-solid mb-2" name="addr_client_3" value="<?php echo $row['AddrClient3'] ?>">
+                                                    <!--end::Input-->
+                                                </div>
+                                                <!--end::Input group-->
+
+                                                <!--begin::Input group-->
+                                                <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                    <!--begin::Label-->
+                                                    <label class="form-label required">Untuk Perhatian<i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip" aria-label="Merujuk kepada Untuk perhatian surat cth: (U.P.: Ahmad Hafiz)" data-bs-original-title="Merujuk kepada Untuk perhatian surat cth: (U.P.: Ahmad Hafiz)" data-kt-initialized="1"></i></label>
+                                                    <!--end::Label-->
+                                                    <!--begin::Input-->
+                                                    <input class="form-control form-control-lg form-control-solid" name="up_pemohon" value="<?php echo $row['UpClient'] ?>">
+                                                    <!--end::Input-->
+                                                    <div class="fv-plugins-message-container invalid-feedback"></div>
+                                                </div>
+                                                <!--end::Input group-->
+                                        </div>
+                                        <!--begin::Step 2-->
+                                        <!--begin::Step 3-->
+                                        <div class="flex-column" data-kt-stepper-element="content">
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <label class="d-flex flex-stack mb-5">
+                                                    <!--begin:Label-->
+                                                    <span class="d-flex align-items-center me-2">
+                                                        <!--begin::Description-->
+                                                        <span class="d-flex flex-column">
+                                                            <span class="form-label">Tajuk Projek</span>
+                                                            <span class="fs-6 text-muted"><?php echo $row['ProjectTitle'] ?></span>
+                                                        </span>
+                                                        <!--end:Description-->
+                                                    </span>
+                                                    <!--end:Label-->
+                                                </label>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::table-->
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="form-label">NAMA JALAN</td>
+                                                            <td class="form-label">PBM / PBT</td>
+                                                            
+                                                        </tr>
+                                                        <?php
+                                                            $road = Wayleave::getRoad($row['SysID']);
+                                                            foreach ($road as $row4) {
+                                                                $data = explode(",", $row4['RoadId']);
+                                                                echo '<tr>';
+                                                                    echo '<td class="fs-6 text-muted">';
+                                                                    echo '<table class="table table-row-bordered table-row">'; 
+                                                                    // Start the nested table
+                                                                    foreach ($data as $rTrim) {
+                                                                        $roadIdTrim = trim($rTrim, '{}'); // Remove curly braces
+                                                                        $road_name = Wayleave::getRoadName($roadIdTrim);
+                                                                        echo '<tr>';
+                                                                        foreach ($road_name as $rData) {
+                                                                            echo '<td class="fs-6 text-muted text-center">' . $rData['RoadName'] . '</td>';
+                                                                        }
+                                                                        echo '</tr>';
+                                                                    }
+                                                                    echo '</table>'; 
+                                                                    // End the nested table
+                                                                    echo '</td>';
+                                                                    echo '<td class="fs-6 text-muted text-center">' . $row4['AuthorityName'] . '</td>';
+                                                                    // echo '<td class="fs-6 text-muted text-center"></td>';
+                                                                echo '</tr>';
+
+                                                                echo '<input type="text" name="entry_list_road_id" value="'.$row4['RoadId'].'" hidden>';
+
+                                                            }
+                                                        ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <!--end::table-->
+                                        </div>
+                                        <!--begin::Step 3-->
+                                        <!--begin::Step 4-->
+                                        <div class="flex-column" data-kt-stepper-element="content">
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">No Invois</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input class="form-control form-control-lg form-control-solid" name="inv_no" value="<?php echo $row['InvNo'] ?>">
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Tarikh Invois</label>
+                                                <!--end::Label-->
+                                                <div class="position-relative d-flex align-items-center">
+                                                    <!--begin::Icon-->
+                                                    <div class="symbol symbol-20px me-4 position-absolute ms-4">
+                                                        <span class="symbol-label bg-secondary">
+                                                            <i class="fad fa-calendar"></i>
+                                                        </span>
+                                                    </div>
+                                                    <!--end::Icon-->
+                                                    <!--begin::Datepicker-->
+                                                    <input id="inv-date" name="inv_date" class="form-control form-control-solid ps-12 flatpickr-input" placeholder="Sila Pilih Tarikh"/>
+                                                    <!--end::Datepicker-->
+                                                </div>
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+                                        </div>
+                                        <!--end::Step 4-->
+                                        <!--begin::Step 5-->
+                                        <div class="flex-column" data-kt-stepper-element="content">
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <label class="d-flex flex-stack mb-5">
+                                                    <!--begin:Label-->
+                                                    <span class="d-flex align-items-center me-2">
+                                                        <!--begin::Description-->
+                                                        <span class="d-flex flex-column">
+                                                            <span class="form-label">Tarikh</span>
+                                                            <?php
+                                                            if($row['Status'] == 47) {
+                                                                echo '<span class="fs-6 text-muted">'. General::convertDate($row['LetterDate']) .'</span>';
+                                                            } else {
+                                                                echo '<span class="fs-6 text-muted">'. $letter_date .'</span>';
+                                                            }
+                                                            ?>
+                                                        </span>
+                                                        <!--end:Description-->
+                                                    </span>
+                                                    <!--end:Label-->
+                                                </label>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Tarikh Hijrah</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input class="form-control form-control-lg form-control-solid" name="date_hijri" value="<?php echo $hijri_date ?>">
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <label class="d-flex flex-stack mb-5">
+                                                    <!--begin:Label-->
+                                                    <span class="d-flex align-items-center me-2">
+                                                        <!--begin::Description-->
+                                                        <span class="d-flex flex-column">
+                                                            <span class="form-label">No Rujukan Surat</span>
+                                                            <span class="fs-6 text-muted"><?php echo $row['LetterRefNo']?></span>
+                                                        </span>
+                                                        <!--end:Description-->
+                                                    </span>
+                                                    <!--end:Label-->
+                                                </label>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Pegawai Untuk Dihubungi</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <select id="selection-staff" class="form-control form-control-lg form-control-solid" name="staff_name" data-placeholder="Sila Pilih Pegawai" data-allow-clear="true"><?php echo $option ?></select>
+                                                
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label">No Telefon Pegawai Untuk Dihubungi</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input id="staff_contact" class="form-control form-control-lg form-control-solid" name="staff_contact" readonly value="<?php echo $row['StaffContact'] ?>">
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label required">Pegawai Melulus</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <select id="selection-approval" class="form-control form-control-lg form-control-solid" name="approval_by" data-placeholder="Sila Pilih Pegawai Melulus" data-allow-clear="true"><?php echo $option3 ?></select>
+                                                
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <div class="mb-5 fv-row fv-plugins-icon-container">
+                                                <!--begin::Label-->
+                                                <label class="form-label">Jawatan Pegawai Melulus</label>
+                                                <!--end::Label-->
+                                                <!--begin::Input-->
+                                                <input id="approval_position" class="form-control form-control-lg form-control-solid" name="approval_position" readonly value="<?php echo $row['StaffApprovalPosition'] ?>">                                                       
+                                                <!--end::Input-->
+                                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                                            </div>
+                                            <!--end::Input group-->
+                                        </div>
+                                        <!--end::Step 5-->
+                                    </div>
+                                    <!--end::Group-->
+                                </div>
+                                <!--end::Scroll-->
+                                    <input type="text" name="system_id" value="<?php echo $row['SysID'] ?>" hidden>
+                                    <input type="text" name="item" value="generate-wyFeedback-edit" hidden>
+                                    <input type="text" name="inv_date" value="<?php echo $generateDate ?>" hidden>
+                                    <input type="text" name="letter_date" value="<?php echo $current_date->format('Y-m-d')?>" hidden>
+                                    <input type="text" name="letter_ref_no" value="<?php echo $row['LetterRefNo']?>" hidden>
+                                    <input type="text" name="item_42_edit" value="wyFeedback-edit-kiter" hidden>
+                                    <input type="text" name="wy_feedback_id" value="<?php echo $row['WyFeedbackId']?>" hidden>
+                                    <input type="text" name="status" value="<?php echo $row['Status']?>" hidden>
+                                    <input type="text" name="authority_id" value="<?php echo $row['AuthorityID'] ?>" hidden>
+                                    <input type="text" name="address_id" value="<?php echo $row['AddressID'] ?>" hidden>
+
+                                    <!--begin::Actions-->
+                                    <div class="d-flex flex-stack">
+                                        <!--begin::Wrapper-->
+                                        <div class="me-2">
+                                            <button type="button" class="btn btn-light btn-active-light-primary" data-kt-stepper-action="previous">
+                                                Sebelumnya
+                                            </button>
+                                        </div>
+                                        <!--end::Wrapper-->
+
+                                        <!--begin::Wrapper-->
+                                        <div>
+                                            <button type="submit" id="wyFeedback-edit-submit" class="btn btn-primary" data-kt-stepper-action="submit">
+                                                <span class="indicator-label">
+                                                    Hantar
+                                                </span>
+                                                <span class="indicator-progress">
+                                                    Sila Tunggu... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                                                </span>
+                                            </button>
+
+                                            <button type="button" class="btn btn-primary" data-kt-stepper-action="next">
+                                                Seterusnya
+                                            </button>
+                                        </div>
+                                        <!--end::Wrapper-->
+                                    </div>
+                                    <!--end::Actions-->
+                            </form>
+                            <!--end::Form-->
+                        </div>
+                        <!--end::Stepper-->
+                    </div>
+                    <!--end::modal body-->
+                </div>
+                <!--end::modal-content-->
+            </div>
+        </div>
+        <!--end::Modal - mkil - Edit-->
+<?php 
+    }
+}
+?>
+
+
