@@ -58,6 +58,15 @@
                     </div>
                 <?php } ?>
 
+                <div class="fv-row mb-8">
+                    <label class="required fs-6 fw-semibold mb-2">Jenis Caj Pendaftaran</label>
+                    <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Sila pilih jenis caj pendaftaran" name="fee_label" required>
+                        <option></option>
+                        <option value="4">Toyyibpay</option>
+                        <option value="2">Invois</option>
+                    </select>
+                </div>
+
                 <div class="mb-10">
                     <label class="form-label">Catatan</label>
                     <textarea class="form-control form-control-solid" placeholder="Sila isi catatan jika ada..." name="notes" rows="3"></textarea>

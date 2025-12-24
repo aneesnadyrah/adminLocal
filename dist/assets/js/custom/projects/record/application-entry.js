@@ -26,6 +26,13 @@ var approvalModal = (function () {
 								message: 'Label Permohonan diperlukan.'
 							}
 						}
+					},
+          'fee_label': {
+						validators: {
+							notEmpty: {
+								message: 'Jenis bayaran caj pendaftaran diperlukan.'
+							}
+						}
 					}
 				},
 				plugins: {
@@ -101,7 +108,7 @@ var approvalModal = (function () {
 
                 // Show error popup. For more info check the plugin's official documentation: https://sweetalert2.github.io/
                 Swal.fire({
-                  text: "Maaf, nampaknya terdapat beberapa ralat dikesan, sila cuba lagi.",
+                  text: error.message,
                   icon: "error",
                   buttonsStyling: false,
                   confirmButtonText: "Ok, maklum!",

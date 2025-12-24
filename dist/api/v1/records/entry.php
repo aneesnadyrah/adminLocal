@@ -214,24 +214,18 @@ if(isset($systemId)) {
             $shortYear = date('y', time());
             $fullYear = date('Y', time());
 
-            // $stmt = $conn->prepare('SELECT length_code, submission_code, created_at, utility_provider FROM flw_appl_entries WHERE system_id = :systemId LIMIT 1');
-            // $stmt->bindParam(':systemId', $systemId);
-            // $stmt->execute();
             $stmt = $conn->prepare('SELECT project_title, length_code, submission_code, created_at, utility_provider, payment_method, state FROM flw_appl_entries WHERE system_id = :systemId LIMIT 1');
             $stmt->bindParam(':systemId', $systemId);
             $stmt->execute();
-
             $record = $stmt->fetch(PDO::FETCH_OBJ);
             // $lengthCode = $record->length_code;
             $providerId = $record->utility_provider;
             // $subId = $record->submission_code;
             $createdAt = $record->created_at;
-            $state = $record->state;
-            $payment_method = $record->payment_method;
+            $state = $record->state; 
             $project_title = $record->project_title;
-
             $utilityType = $POST->utility_type;
-            
+            $payment_method = $POST->fee_label;
             if ($providerId == 5 || $providerId == 7) {
                 $applLabel = $POST->appl_label;
             }
@@ -268,9 +262,10 @@ if(isset($systemId)) {
                     $stmt->execute();
                 }
                 
-                $stmt = $conn->prepare("UPDATE flw_appl_entries SET utility_type = :utilityType WHERE system_id = :systemId RETURNING project_title");
+                $stmt = $conn->prepare("UPDATE flw_appl_entries SET utility_type = :utilityType, payment_method= :feeLabel WHERE system_id = :systemId RETURNING project_title");
                 // $stmt->bindParam(':refNo', $refNo);
                 $stmt->bindParam(':utilityType', $utilityType);
+                $stmt->bindParam(':feeLabel', $payment_method);
                 $stmt->bindParam(':systemId', $systemId);
                 if($stmt->execute()) {
                     $project_title = $stmt->fetchColumn();
@@ -409,119 +404,6 @@ if(isset($systemId)) {
                         $ftpSubmissionDir = $ftpDocumentsDir.'/Submission';
 
                         $success = 0;
-
-                            // if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpYearDir")){
-                            //     $return = true;
-                            // } else {
-                            //     if(ftp_mkdir($store, $ftpYearDir)){
-                            //         $return = true;
-                            //     } else {
-                            //         $return = false;
-                            //     }
-                            // }
-
-                            // if($return === true) {
-                            //     if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpSystemDir")){
-                            //         $success++;
-                            //     } else {
-                            //         if(ftp_mkdir($store, $ftpSystemDir)){
-                            //             $success++;
-                            //         }
-                            //     }
-
-                            //     if($success === 1) {
-                            //         if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpReportsDir")){
-                            //             $success++;
-                            //         } else {
-                            //             if(ftp_mkdir($store, $ftpReportsDir)){
-                            //                 $success++;
-                            //             }
-                            //         }
-
-                            //     }
-
-                            //     if($success === 2) {
-                            //         if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpSiteVisitDir")){
-                            //             $success++;
-                            //         } else {
-                            //             if(ftp_mkdir($store, $ftpSiteVisitDir)){
-                            //                 $success++;
-                            //             }
-                            //         }
-                            //     }
-
-                            //     if($success === 3) {
-                            //         if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpSurveyDir")){
-                            //             $success++;
-                            //         } else {
-                            //             if(ftp_mkdir($store, $ftpSurveyDir)){
-                            //                 $success++;
-                            //             }
-                            //         }
-                            //     }
-
-                            //     if($success === 4) {
-                            //         if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpGeospatialDir")){
-                            //             $success++;
-                            //         } else {
-                            //             if(ftp_mkdir($store, $ftpGeospatialDir)){
-                            //                 $success++;
-                            //             }
-                            //         }
-                            //     }
-
-                            //     if($success === 5) {
-                            //         if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpMapsDir")){
-                            //             $success++;
-                            //         } else {
-                            //             if(ftp_mkdir($store, $ftpMapsDir)){
-                            //                 $success++;
-                            //             }
-                            //         }
-                            //     }
-
-                            //     if($success === 6) {
-                            //         if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpGISReadyDir")){
-                            //             $success++;
-                            //         } else {
-                            //             if(ftp_mkdir($store, $ftpGISReadyDir)){
-                            //                 $success++;
-                            //             }
-                            //         }
-                            //     }
-
-                            //     if($success === 7) {
-                            //         if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpDocumentsDir")){
-                            //             $success++;
-                            //         } else {
-                            //             if(ftp_mkdir($store, $ftpDocumentsDir)){
-                            //                 $success++;
-                            //             }
-                            //         }
-                            //     }
-
-                            //     if($success === 8) {
-                            //         if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpPlanDir")){
-                            //             $success++;
-                            //         } else {
-                            //             if(ftp_mkdir($store, $ftpPlanDir)){
-                            //                 $success++;
-                            //             }
-                            //         }
-                            //     }
-
-                            //     if($success === 9) {
-                            //         if(is_dir("ftp://kiter:JW2P5vt3@dev.storage.kutt.my/$ftpSubmissionDir")){
-                            //             $success++;
-                            //         } else {
-                            //             if(ftp_mkdir($store, $ftpSubmissionDir)){
-                            //                 $success++;
-                            //             }
-                            //         }
-                            //     }
-                            // }
-
-                            // total success = 10
 
                         if(!ftp_chdir($store, $ftpBaseDir.'/'.$year)) {
                             if(!ftp_mkdir($store, $ftpBaseDir.'/'.$year)) {
