@@ -17,9 +17,7 @@ $taskAssignment = new TaskAssignments();
 $chronology = new Chronology();
 $db = new DBConnectionFactory();
 $conn = $db->createConnection();
-$ftp = new FTPConnectionFactory();
-$ftpPath = $system->FTPConnection->path;
-$store = $ftp->createConnection();
+
 $timestamp = date('Y-m-d H:i:s', time());
 $systemId = $_GET['id'];
 $ec_url = $system->App->ec_url;
@@ -207,323 +205,99 @@ if(isset($systemId)) {
         }
 
     } else if($_SERVER['REQUEST_METHOD'] === 'PUT') {
-        // Approve submission
         $POST = json_decode($data);
         if($_GET['option'] === 'approval') {
-            $month = date('m', time());
-            $shortYear = date('y', time());
-            $fullYear = date('Y', time());
 
-            $stmt = $conn->prepare('SELECT project_title, length_code, submission_code, created_at, utility_provider, payment_method, state FROM flw_appl_entries WHERE system_id = :systemId LIMIT 1');
-            $stmt->bindParam(':systemId', $systemId);
-            $stmt->execute();
-            $record = $stmt->fetch(PDO::FETCH_OBJ);
-            // $lengthCode = $record->length_code;
-            $providerId = $record->utility_provider;
-            // $subId = $record->submission_code;
-            $createdAt = $record->created_at;
-            $state = $record->state; 
-            $project_title = $record->project_title;
-            $utilityType = $POST->utility_type;
-            $payment_method = $POST->fee_label;
-            if ($providerId == 5 || $providerId == 7) {
-                $applLabel = $POST->appl_label;
-            }
-
-            $notes = "Permohonan Lengkap.\nNota: ".$POST->notes." ";
-
-            $applData = [
-                "secret" => $system->App->secret,
-                "submissions" => [
-                    // "reference_no" => $refNo,
-                    "approval_submission" => true,
-                    "username" => $username,
-                    "notes" => $notes,
-                    "state" => $state,
-                    "payment_method" => $payment_method,
-                    "stage" => 1
-                ]
-            ];
-
-            $jsonData = json_encode($applData);
-            $decodedData = json_decode($jsonData);
-            $request = $curl->request($ec_url.'/gateway/internal/reference/'.$systemId, $jsonData);
-            $trafficReturn = $traffic->requestAPI($request['traffic'], $request['url'], $request['request_method'], $request['headers'], $request['body'], $request['response'], $request['status']);
-
-            $curlResult = json_decode($request['response']);
+            $curlResult = notifyExtecord($POST,$system,$username,$curl,$traffic); 
+            $currentStatus = getCurrentStatus($conn,$systemId, "operation");
 
             if($curlResult->message === "success") {
+                if ($POST->utility_provider == 5 || $POST->utility_provider == 7){
+                    $applLabel = $POST->appl_label;
+                    $utilityType = $POST->utility_type;
+                    $payment_method = $POST->fee_label;
 
-                // If only TNB or TM
-                if ($providerId == 5 || $providerId == 7) {
-                    $stmt = $conn->prepare("UPDATE flw_appl_entries SET tags = :applLabel WHERE system_id = :systemId");
+                    $sql = "UPDATE flw_appl_entries SET tags = :applLabel, utility_type = :utilityType, payment_method= :feeLabel WHERE system_id = :systemId RETURNING project_title, created_at";
+                    $stmt = $conn->prepare($sql);
                     $stmt->bindParam(':applLabel', $applLabel);
-                    $stmt->bindParam(':systemId', $systemId);
-                    $stmt->execute();
-                }
-                
-                $stmt = $conn->prepare("UPDATE flw_appl_entries SET utility_type = :utilityType, payment_method= :feeLabel WHERE system_id = :systemId RETURNING project_title");
-                // $stmt->bindParam(':refNo', $refNo);
-                $stmt->bindParam(':utilityType', $utilityType);
-                $stmt->bindParam(':feeLabel', $payment_method);
-                $stmt->bindParam(':systemId', $systemId);
-                if($stmt->execute()) {
-                    $project_title = $stmt->fetchColumn();
-
-                    if ($payment_method == 2) {
-                        
-                        # Method Invoice, next flow go to role Account
-                        // NOTE - Update Task Assignment
-                        $dept = "operation";
-                        $stmt1 = $conn->prepare('SELECT status_id FROM ctrl_statuses WHERE system_id = :systemId AND department = :department LIMIT 1');
-                        $stmt1->bindParam(':systemId', $systemId);
-                        $stmt1->bindParam(':department', $dept);
-                        $stmt1->execute();
-
-                        $status_amendment = $stmt1->fetch(PDO::FETCH_OBJ)->status_id;
-
-                        $taskAssignment->complete($username, $systemId, $status_amendment); 
-                        $taskAssignment->create($systemId, 1);
-
-                        $message = 'Mengesahkan Permohonan bagi No Permohonan #'.$systemId;
-                        $pages = 'application_approval';
-                        $changelog->userActivity($message, $pages);
-
-                        // NOTE - current status = 4
-                        $flwStatus = 1;
-                        $steps = 10;
-                        $NextStatus = $flow->goToNextFlow($systemId, "operation", "BF", Steps: $steps);
-
-                        //Create new ctrl for mapping
-                        $addNewRecord = $flow->addRecordFlow($systemId, "BF", 39);
-
-                        // NOTE - Insert Project Changelog
-                        $details = 'Permohonan diluluskan bagi no permohonan #'.$systemId. ". Nota: ".$POST->notes;
-                        if($changelog->projectActivity($systemId, 4, $details)) {
-                            // NOTE - send telegram notification for team account
-                            $message = $telegram->getMessageByFlow($flwStatus, systemId: $systemId, item: $project_title);
-                            $response = $telegram->sendMessage('group', 'management', $message, 'html');
-                            $response = $telegram->sendMessage('flow', 1, $message, 'html');
-                        }
-                        $chronoId = $chronology->create($username, $systemId, 4, 'notes');
-
-                    } else if ($payment_method == 1 || $payment_method == 4) {
-                        
-                        # Method Online Banking & QR Code, next flow go to Extercord
-                        // $request = $curl->request($ec_url.'/gateway/internal/charges/'.$systemId, $jsonData);
-                        // $trafficReturn = $traffic->requestAPI($request['traffic'], $request['url'], $request['request_method'], $request['headers'], $request['body'], $request['response'], $request['status']);
-
-                        // NOTE - Update Task Assignment
-                        $taskAssignment->complete($username, $systemId, 4);
-                        // $taskAssignment->create($systemId, 1);
-
-                        $message = 'Mengesahkan Permohonan bagi No Permohonan #'.$systemId;
-                        $pages = 'application_approval';
-                        $changelog->userActivity($message, $pages);
-
-                        // NOTE - current status = 4
-                        $flwStatus = 1;
-                        $steps = 10;
-                        $NextStatus = $flow->goToNextFlow($systemId, "operation", "BF", Steps: $steps);
-
-                        //Create new ctrl for mapping
-                        $addNewRecord = $flow->addRecordFlow($systemId, "BF", 39);
-
-                        // NOTE - Insert Project Changelog
-                        $details = 'Permohonan diluluskan bagi no permohonan #'.$systemId . '. Nota: ' . $POST->notes;
-                        if($changelog->projectActivity($systemId, 4, $details)) {
-                            // NOTE - send telegram notification for team account
-                            $message = "Pengesahan Permohonan telah dilakukan. Sila tunggu Pembayaran Caj Pendaftaran yang akan dibuat oleh pemohon. \n\n<strong>🔗 No Permohonan : ".$systemId."\n📝 Tajuk : " . $project_title . "</strong>";
-                            // $message = $telegram->getMessageByFlow($flwStatus, systemId: $systemId, item: $project_title);
-                            // $response = $telegram->sendMessage('flow', 1, $message, 'html');
-                        }
-                        $chronoId = $chronology->create($username, $systemId, 4, 'notes');
-
-                    } else {
-                        
-                        # Method Online Banking & QR Code, next flow go to Extercord
-                        $request = $curl->request($ec_url.'/gateway/internal/reference/'.$systemId, $jsonData);
-                        $trafficReturn = $traffic->requestAPI($request['traffic'], $request['url'], $request['request_method'], $request['headers'], $request['body'], $request['response'], $request['status']);
-
-                        // NOTE - Update Task Assignment
-                        $taskAssignment->complete($username, $systemId, 4);
-                        // $taskAssignment->create($systemId, 1);
-
-                        $message = 'Mengesahkan Permohonan bagi No Permohonan #'.$systemId;
-                        $pages = 'application_approval';
-                        $changelog->userActivity($message, $pages);
-
-                        // NOTE - current status = 4
-                        $flwStatus = 1;
-                        $steps = 10;
-                        $NextStatus = $flow->goToNextFlow($systemId, "operation", "BF", Steps: $steps);
-
-                        //Create new ctrl for mapping
-                        $addNewRecord = $flow->addRecordFlow($systemId, "BF", 39);
-
-                        // NOTE - Insert Project Changelog
-                        $details = 'Permohonan diluluskan bagi no permohonan #'. $systemId . '. Nota: ' . $POST->notes;
-                        if($changelog->projectActivity($systemId, 4, $details)) {
-                            // NOTE - send telegram notification for team account
-                            $message = "Pengesahan Permohonan telah dilakukan. Sila tunggu Pembayaran Caj Pendaftaran yang akan dibuat oleh pemohon. \n\n<strong>🔗 No Permohonan : ".$systemId."\n📝 Tajuk : " . $project_title . "</strong>";
-                            // $message = $telegram->getMessageByFlow($flwStatus, systemId: $systemId, item: $project_title);
-                            // $response = $telegram->sendMessage('flow', 1, $message, 'html');
-                        }
-                        $chronoId = $chronology->create($username, $systemId, 4, 'notes');
-
-                    }
-
-                    $stmt = $conn->prepare("UPDATE flw_appl_entries SET utility_type = :utilityType WHERE system_id = :systemId RETURNING project_title");
                     $stmt->bindParam(':utilityType', $utilityType);
+                    $stmt->bindParam(':feeLabel', $payment_method); 
                     $stmt->bindParam(':systemId', $systemId);
+                }else{
+                    $sql = "UPDATE flw_appl_entries SET utility_type = :utilityType, payment_method= :feeLabel WHERE system_id = :systemId RETURNING project_title, created_at";        
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bindParam(':utilityType', $utilityType);
+                    $stmt->bindParam(':feeLabel', $payment_method);
+                    $stmt->bindParam(':systemId', $systemId);
+                }
 
-                    if($stmt->execute()) {
-                        $query = "INSERT INTO flw_appl_notes (system_id, details, created_at, username, chronology_id ) VALUES (:systemId, :details, :created, :username, :chronology_id)";
-                        $stmt = $conn->prepare($query);
-                        $stmt->bindParam(':systemId', $systemId);
-                        $stmt->bindParam(':details', $details);
-                        $stmt->bindParam(':created', $createdAt);
-                        $stmt->bindParam(':username', $username);
-                        $stmt->bindParam(':chronology_id', $chronoId);
-                        $stmt->execute();
-
-                        $year = date("Y", strtotime($createdAt));
-
-                        // FTP directory structure
-                        $ftpBaseDir = '/Projects';
-                        $ftpYearDir = $ftpBaseDir.'/'.$year;
-                        $ftpSystemDir = $ftpYearDir.'/'.$systemId;
-                        $ftpReportsDir = $ftpSystemDir.'/Reports';
-                        $ftpGeospatialDir = $ftpSystemDir.'/Geospatial';
-                        $ftpDocumentsDir = $ftpSystemDir.'/Documents';
-                        $ftpSiteVisitDir = $ftpReportsDir.'/SiteVisit';
-                        $ftpSurveyDir = $ftpReportsDir.'/Survey';
-                        $ftpMapsDir = $ftpGeospatialDir.'/Maps';
-                        $ftpGISReadyDir = $ftpGeospatialDir.'/GISReady';
-                        $ftpPlanDir = $ftpDocumentsDir.'/Plan';
-                        $ftpSubmissionDir = $ftpDocumentsDir.'/Submission';
-
-                        $success = 0;
-
-                        if(!ftp_chdir($store, $ftpBaseDir.'/'.$year)) {
-                            if(!ftp_mkdir($store, $ftpBaseDir.'/'.$year)) {
-                                $message = 'Tidak Berjaya Untuk Membuka Fail Kerja Permohonan ini. Sila Hubungi Pegawai IT kami.';
-                                $return = true;
-                            } else {
-                                $return = false;
-                            }
-                        } else {
-                            $return = true;
-                        }
-
-                        if($return === true) {
-                            if(ftp_mkdir($store, $ftpSystemDir)) {
-                                // Set permissions for the newly created directory
-                                ftp_chmod($store, 0755, $ftpSystemDir);
-                                if(ftp_mkdir($store, $ftpReportsDir)) {
-                                    // Set permissions for the newly created directory
-                                    ftp_chmod($store, 0755, $ftpReportsDir);
-                                    if(ftp_mkdir($store, $ftpSiteVisitDir)) {
-                                        // Set permissions for the newly created directory
-                                        ftp_chmod($store, 0755, $ftpSiteVisitDir);
-                                        $success++;
-                                    }
-                                    if(ftp_mkdir($store, $ftpSurveyDir)) {
-                                        // Set permissions for the newly created directory
-                                        ftp_chmod($store, 0755, $ftpSurveyDir);
-                                        $success++;
-                                    }
-                                }
-                                if(ftp_mkdir($store, $ftpGeospatialDir)) {
-                                    // Set permissions for the newly created directory
-                                    ftp_chmod($store, 0755, $ftpGeospatialDir);
-                                    if(ftp_mkdir($store, $ftpMapsDir)) {
-                                        // Set permissions for the newly created directory
-                                        ftp_chmod($store, 0755, $ftpMapsDir);
-                                        $success++;
-                                    }
-                                    if(ftp_mkdir($store, $ftpGISReadyDir)) {
-                                        // Set permissions for the newly created directory
-                                        ftp_chmod($store, 0755, $ftpGISReadyDir);
-                                        $success++;
-                                    }
-                                }
-                                if(ftp_mkdir($store, $ftpDocumentsDir)) {
-                                    // Set permissions for the newly created directory
-                                    ftp_chmod($store, 0755, $ftpDocumentsDir);
-                                    if(ftp_mkdir($store, $ftpPlanDir)) {
-                                        // Set permissions for the newly created directory
-                                        ftp_chmod($store, 0755, $ftpPlanDir);
-                                        $success++;
-                                    }
-                                    if(ftp_mkdir($store, $ftpSubmissionDir)) {
-                                        // Set permissions for the newly created directory
-                                        ftp_chmod($store, 0755, $ftpSubmissionDir);
-                                        $success++;
-                                    }
-                                }
-                            }
-                        } else {
-                            $message = 'Tidak Berjaya Untuk Membuka Fail Kerja Permohonan ini. Sila Hubungi Pegawai IT kami.';
-                        }
-                        // Close the FTP connection
-                        ftp_close($store);
-
-                        if($success === 6) {
-                            // $reference = $refNo;
-                            $message = 'Permohonan ini sudah berjaya disemak!';
-                            // Finally, return a JSON
-                            http_response_code(200);
-                            $result = array(
-                                "success" => true,
-                                // "reference" => $reference,
-                                "message" => $message,
-                                "sysId" => $systemId
-                            );
-                        } else {
-                            $message = 'Tidak Berjaya Untuk Membuka Fail Kerja Permohonan ini. Sila Hubungi Pegawai IT kami.';
-                            // Finally, return a JSON
-                            http_response_code(500);
-                            $result = array(
-                                "success" => false,
-                                "message" => $message,
-                                "sysId" => $systemId
-                            );
-                        }
-                    }
-
-                } else {
+                if(!createFTPDirectories($systemId,$entry->created_at,$system)){
                     http_response_code(500);
                     $result = array(
                         "success" => false,
-                        "message" => 'Permohonan Tidak Dapat Diproses. Jenis Utiliti Tidak Ditetapkan.'
+                        "message" => "Folder tidak berjaya dicipta pada server FTP. Sila hubungi pegawai IT kami."
                     );
-
                 }
 
-            } else {
+                if($stmt->execute()) {
+                    $entry = $stmt->fetch(PDO::FETCH_OBJ);
+                    $chronoId = $chronology->create($username, $systemId, $currentStatus, 'notes');
+                    $query = "INSERT INTO flw_appl_notes (system_id, details, created_at, username, chronology_id ) VALUES (:systemId, :details, :created, :username, :chronology_id)";
+                    $stmt = $conn->prepare($query);
+                    $stmt->bindParam(':systemId', $systemId);
+                    $stmt->bindParam(':details', $details);
+                    $stmt->bindParam(':created', $createdAt);
+                    $stmt->bindParam(':username', $username);
+                    $stmt->bindParam(':chronology_id', $chronoId);
+                    $stmt->execute();
+
+                    $message = 'Mengesahkan Permohonan bagi No Permohonan #'.$systemId;
+                    $pages = 'application_approval';
+                    $changelog->userActivity($message, $pages);
+
+                    if($payment_method == 2) {
+                        $flwStatus = 1;
+                        $taskAssignment->complete($username, $systemId, $currentStatus); 
+                        $taskAssignment->create($systemId, $flwStatus);
+                    }else if($payment_method == 4){
+                        $taskAssignment->complete($username, $systemId, $currentStatus); 
+                    }
+                    $steps = 10;
+                    $NextStatus = $flow->goToNextFlow($systemId, "operation", "BF", Steps: $steps);
+                    if(!createFTPDirectories($systemId,$entry->created_at,$system)){
+                        http_response_code(500);
+                        $result = array(
+                            "success" => false,
+                            "message" => "Folder tidak berjaya dicipta pada server FTP. Sila hubungi pegawai IT kami."
+                        );
+                    }
+
+                }else{ //tidak berjaya update data pada flw_appl_entries.
+                    http_response_code(500);
+                    $result = array(
+                        "success" => false,
+                        "message" => "Maklumat Tidak Dapat Dikemaskini. Sila Hubungi Pegawai IT kami."
+                    );
+                }
+                $conn = null;
+                echo json_encode($result);
+
+            } else { //tidak berjaya update data pada extercord.
                 http_response_code(500);
                 $result = array(
                     "success" => false,
-                    "message" => 'Permohonan Tidak Dapat Diproses. API ke Corridor Tidak Berjaya.'
+                    "message" => "Permohonan Tidak Dapat Diproses. Sila Hubungi Pegawai IT kami."
                 );
-
             }
-            
-            // Close the database connection
-            $conn = null;
-            echo json_encode($result);
 
-        } else{
-
+        }else{
             // Finally, return a JSON
-            http_response_code(500);
+            http_response_code(403);
             $result = array(
                 "success" => false,
-                "message" => 'Permohonan Tidak Dapat Diproses. Option is not approval.'
+                "message" => "Not Authorized"
             );
         }
-
 
     } else if($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
@@ -535,4 +309,95 @@ if(isset($systemId)) {
         "success" => false,
         "message" => "No System ID provided."
     );
+}
+
+function notifyExtecord($POST,$system,$username,$curl,$traffic) {
+    $notes = "Permohonan Lengkap.\nNota: ".$POST->notes." ";
+    $applData = [
+        "secret" => $system->App->secret,
+        "submissions" => [
+            // "reference_no" => $refNo,
+            "approval_submission" => true,
+            "username" => $username,
+            "notes" => $notes,
+            "state" => $POST->state,
+            "payment_method" => $POST->fee_label,
+            "stage" => 1
+        ]
+    ];
+
+    $jsonData = json_encode($applData);
+    $request = $curl->request($system->App->ec_url.'/gateway/internal/reference/'.$_GET['id'], $jsonData);
+    $trafficReturn = $traffic->requestAPI($request['traffic'], $request['url'], $request['request_method'], $request['headers'], $request['body'], $request['response'], $request['status']);
+
+    $curlResult = json_decode($request['response']);
+
+    return $curlResult;
+}
+
+function getCurrentStatus($conn,$systemId, $department) {
+    $authority = 0;
+    $stmt = $conn->prepare('SELECT status_id FROM ctrl_statuses WHERE system_id = :systemId AND department = :department AND authority = :authority');
+    $stmt->bindParam(':systemId', $systemId);
+    $stmt->bindParam(':department', $department);
+    $stmt->bindParam(':authority', $authority);
+    
+    if($stmt->execute()){
+        return $status_id = $stmt->fetch(PDO::FETCH_OBJ)->status_id;
+    }else{
+        http_response_code(403);
+        $result = array(
+            "success" => false,
+            "message" => "Cannot get current status, please contact IT support."
+        );
+    }
+}
+
+function createFTPDirectories($systemId, $createdAt,$system) {
+    $ftp = new FTPConnectionFactory();
+    $store = $ftp->createConnection();
+    if (!$store) {
+        return "Cannot connect to FTP server";
+    }
+    // FTP directory structure
+    $year = date("Y", strtotime("2025-06-15")); // Example date, replace with actual date if needed
+    $baseDir = '/ftp';
+    
+    $directories = [
+        $baseDir,
+        "$baseDir/Projects",
+        "$baseDir/Projects/$year",
+        "$baseDir/Projects/$year/Documents",
+        "$baseDir/Projects/$year/Documents/Submission",
+        "$baseDir/Projects/$year/Documents/Plan",
+        "$baseDir/Projects/$year/Geospatial",
+        "$baseDir/Projects/$year/Geospatial/Maps",
+        "$baseDir/Projects/$year/Geospatial/GISReady",
+        "$baseDir/Projects/$year/Reports",
+        "$baseDir/Projects/$year/Reports/SiteVisit",
+        "$baseDir/Projects/$year/Reports/Survey",
+    ];
+
+        foreach ($directories as $dir) {
+        
+        // Check directory existence
+        if (!ftp_chdir($store, $dir)) {
+            // Try to create directory
+            if (!ftp_mkdir($store, $dir)) {
+                error_log("FTP mkdir failed: $dir");
+                ftp_close($store);
+                return false; // Failed to create directory
+            }
+
+            $systemType = ftp_systype($ftp);
+            if (stripos($systemType, 'Windows') === false) {
+                ftp_chmod($ftp, 0755, $path);
+            }
+        }else{
+            error_log($dir . " does not exist. Creating...\n");
+        }
+    }
+
+    ftp_close($store);
+    return true; // All directories exist or created successfully
 }

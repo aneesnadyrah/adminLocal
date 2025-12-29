@@ -45,7 +45,8 @@
                     $dataEntry = $general->getDataEntry($systemId);
                     $providerId = $dataEntry['utility_provider'];
                 ?>
-
+                <input type="hidden" name="state" value="<?php echo $dataEntry['state']; ?>" />
+                <input type="hidden" name="utility_provider" value="<?php echo $dataEntry['utility_provider']; ?>" />
                 <!-- If Utility is TNB or TM, then enable this -->
                 <?php if ($providerId == 5 || $providerId == 7) { ?>
                     <div class="fv-row mb-8">

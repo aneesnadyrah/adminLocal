@@ -106,6 +106,8 @@ RewriteEngine On
     RewriteRule ^error/404          /views/error/404.php [L]
     RewriteRule ^error/505          /views/error/505.php [L]
 
+    #check folder exist
+    RewriteRule ^folderexist/([A-Za-z0-9]{8})    /views/general/checkFolderExist.php?sid=$1 [QSA,L]
 
     ######## API ROUTING ########
 
