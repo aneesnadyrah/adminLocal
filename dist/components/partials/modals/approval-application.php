@@ -45,7 +45,8 @@
                     $dataEntry = $general->getDataEntry($systemId);
                     $providerId = $dataEntry['utility_provider'];
                 ?>
-
+                <input type="hidden" name="state" value="<?php echo $dataEntry['state']; ?>" />
+                <input type="hidden" name="utility_provider" value="<?php echo $dataEntry['utility_provider']; ?>" />
                 <!-- If Utility is TNB or TM, then enable this -->
                 <?php if ($providerId == 5 || $providerId == 7) { ?>
                     <div class="fv-row mb-8">
@@ -57,6 +58,15 @@
                         </select>
                     </div>
                 <?php } ?>
+
+                <div class="fv-row mb-8">
+                    <label class="required fs-6 fw-semibold mb-2">Jenis Caj Pendaftaran</label>
+                    <select class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Sila pilih jenis caj pendaftaran" name="fee_label" required>
+                        <option></option>
+                        <option value="4">Toyyibpay</option>
+                        <option value="2">Invois</option>
+                    </select>
+                </div>
 
                 <div class="mb-10">
                     <label class="form-label">Catatan</label>

@@ -6,11 +6,11 @@ DB_USERNAME = 'kiter'
 DB_PASSWORD = 'dev@kiter'
 
 # FTP CONNECTION
-FTP_HOST = 'storage.kutt.my'
+FTP_HOST = '127.0.0.1'
 FTP_PORT = '21'
-FTP_USERNAME = 'iekiter'
-FTP_PASSWORD = 'dqUABlEmoLeA'
-FTP_PATH = 'iekiter'
+FTP_USERNAME = 'ftpserver'
+FTP_PASSWORD = 'ftp123'
+FTP_PATH = '/ftp'
 
 # TELEGRAM BOT CONNECTION
 TG_BOT_TOKEN = 'bot2095566721:AAEfpVPFv_R5Cgm8TzuTJ8jYJx4hfKWEHVQ'
@@ -19,7 +19,7 @@ TG_BOT_NAME = 'kuttsb_bot'
 #APPS
 DEV_APP_URL = 'https://kiter.test'
 APP_URL = 'https://admin.kutt.my'
-EC_URL = 'https://app.kutt.my'
+EC_URL = 'https://kiterclient2.test'
 SECRET_KEY = 'U2TKXVwku3tDMRv4RT2a5nVd5ErgiCVIfArIhw0MQVwpkhSyE581SHwUcDVg905Z'
 APP_TITLE = 'KITER'
 COMP_NAME = 'Koridor Utiliti Teknologi Terengganu'
